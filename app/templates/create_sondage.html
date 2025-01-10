@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un Sondage</title>
+    <script>
+        let questionIndex = 0;
+
+        function addQuestion() {
+            questionIndex++;
+
+            const questionsContainer = document.getElementById('questions-container');
+            const newQuestion = document.createElement('div');
+            newQuestion.classList.add('question');
+            newQuestion.innerHTML = `
+                <div>
+                    <label for="questions-${questionIndex}-intitule">Question :</label>
+                    <input type="text" id="questions-${questionIndex}-intitule" name="questions-${questionIndex}-intitule" required>
+                </div>
+                <div>
+                    <label for="questions-${questionIndex}-type">Type de question :</label>
+                    <select id="questions-${questionIndex}-type" name="questions-${questionIndex}-type" onchange="toggleReponses(this)">
+                        <option value="ouverte">ouverte</option>
+                        <option value="qcm">QCM</option>
+                    </select>
+                </div>
+                <div class="reponses" style="display:none;">
+                    <label>Réponses :</label>
+                    <input type="text" name="questions-${questionIndex}-reponses-0" placeholder="Option 1">
+                    <input type="text" name="questions-${questionIndex}-reponses-1" placeholder="Option 2">
+                    <button type="button" onclick="addReponse(this, ${questionIndex})">Ajouter une option</button>
+                </div>
+            `;
+            questionsContainer.appendChild(newQuestion);
+        }
+
+        function addReponse(button, questionIndex) {
+            const reponsesDiv = button.parentElement;
+            const inputCount = reponsesDiv.querySelectorAll('input').length;
+            const newReponse = document.createElement('input');
+            newReponse.type = 'text';
+            newReponse.name = `questions-${questionIndex}-reponses-${inputCount}`;
+            newReponse.placeholder = `Option ${inputCount + 1}`;
+            reponsesDiv.appendChild(newReponse);
+        }
+
+        function toggleReponses(select) {
+            const reponsesDiv = select.parentElement.nextElementSibling;
+            if (select.value === 'qcm') {
+                reponsesDiv.style.display = 'block';
+            } else {
+                reponsesDiv.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+<h1>Créer un nouveau sondage</h1>
+
+<form action="/create_sondage" method="POST">
+    <div>
+        <label for="nom">Nom du sondage :</label>
+        <input type="text" id="nom" name="nom" required>
+    </div>
+    <div>
+        <label for="createur">Créateur :</label>
+        <input type="text" id="createur" name="createur" required>
+    </div>
+
+    <div id="questions-container">
+        <div class="question">
+            <div>
+                <label for="questions-0-intitule">Question :</label>
+                <input type="text" id="questions-0-intitule" name="questions-0-intitule" required>
+            </div>
+            <div>
+                <label for="questions-0-type">Type de question :</label>
+                <select id="questions-0-type" name="questions-0-type" onchange="toggleReponses(this)">
+                    <option value="ouverte">ouverte</option>
+                    <option value="qcm">QCM</option>
+                </select>
+            </div>
+            <div class="reponses" style="display:none;">
+                <label>Réponses :</label>
+                <button type="button" onclick="addReponse(this, 0)">Ajouter une option</button>
+                <input type="text" name="questions-0-reponses-0" placeholder="Option 1">
+                <input type="text" name="questions-0-reponses-1" placeholder="Option 2">
+            </div>
+        </div>
+    </div>
+
+    <button type="button" onclick="addQuestion()">Ajouter une question</button>
+    <button type="submit">Créer</button>
+</form>
+
+<a href="{{ url_for('index') }}">Retour à la liste des sondages</a>
+</body>
+</html>

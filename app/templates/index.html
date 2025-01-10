@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sondages</title>
+</head>
+<body>
+    <h1>Sondages disponibles</h1>
+
+    <div>
+        {% if sondages %}
+            <ul>
+                {% for sondage in sondages %}
+                    <li>
+                        <h2>{{ sondage.nom }}</h2>
+                        <p>Créé par : {{ sondage.createur }}</p>
+                        <a href="{{ url_for('show_sondage', sondage_id=sondage.id_str) }}">Voir les détails</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun sondage disponible.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

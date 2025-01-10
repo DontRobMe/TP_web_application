@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Répondre au sondage</title>
+</head>
+<body>
+    <h1>{{ sondage.nom }}</h1>
+    <form method="POST" action="{{ url_for('submit_response_route', sondage_id=sondage._id) }}">
+        {% for question in sondage.questions %}
+            <label>{{ question.intitule }}</label><br>
+            {% if question.type == 'qcm' %}
+                {% for reponse in question.reponses %}
+                    <input type="checkbox" name="reponses[]" value="{{ reponse }}">{{ reponse }}<br>
+                {% endfor %}
+            {% else %}
+                <input type="text" name="reponses[]" placeholder="Votre réponse"><br>
+            {% endif %}
+        {% endfor %}
+        <button type="submit">Soumettre</button>
+    </form>
+</body>
+</html>
