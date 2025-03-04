@@ -10,13 +10,16 @@ Ce projet est une application de système de sondage développée avec **Python*
 - **Créer un sondage** avec des questions ouvertes ou à choix multiples.
 - **Modifier** les sondages et leurs questions associées.
 - **Supprimer** un sondage.
+- **Voir les résultats** des sondages que vous avez créés.
 
 #### 📝 Utilisateur Répondant
 - **Répondre à des sondages** publiés.
 - Voir la liste des sondages disponibles.
 
-#### 🌍 Public
-- **Consulter la liste des sondages disponibles.**
+#### 🔒 Authentification
+- **Inscription** et **Connexion** des utilisateurs.
+- **Déconnexion** de l'utilisateur.
+
 
 ---
 
@@ -75,27 +78,60 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 
 - Endpoint : POST /reponses
 
+**Gestion des utilisateurs**
+
+🔒 Inscription
+
+- Endpoint : POST /register
+
+🔑 Connexion
+
+- Endpoint : POST /login
+
+🚪 Déconnexion
+
+- Endpoint : GET /logout
+
+**Gestion des sondages spécifiques**
+
+👁 Voir les détails d'un sondage
+
+- Endpoint : GET /sondages/<sondage_id>
+
+📝 Éditer un sondage
+
+- Endpoint : GET /edit_sondage/<sondage_id>
+
+✏️ Mettre à jour un sondage
+
+- Endpoint : POST /update_sondage/<sondage_id>
+
+🗑 Supprimer un sondage
+
+- Endpoint : POST /delete_sondage/<sondage_id>
+
+📊 Voir les réponses d'un sondage
+
+- Endpoint : GET /view_reponses/<sondage_id>
 
 ## 🛠️ Structure du Projet
 ```bash    
 sondage-app/
 ├── app/
-│   ├── __init__.py          # Initialisation de l'application Flask
-│   ├── models.py            # Modèles pour les collections MongoDB
-│   ├── routes.py            # Gestion des routes de l'application
-│   ├── controllers/         # Contrôleurs pour les fonctionnalités
+│   ├── __init__.py         
+│   ├── models.py           
+│   ├── routes.py           
+│   ├── controllers/        
 │   │   ├── sondage_controller.py
 │   │   └── reponse_controller.py
-│   ├── services/            # Services pour la base de données et l'authentification
+│   │   └── users_controller.py
+│   ├── services/           
 │       ├── database.py
-│       └── auth_service.py
-├── tests/                   # Tests unitaires
-│   ├── test_sondages.py
-│   └── test_reponses.py
-├── app.py                   # Point d'entrée principal
-├── config.py                # Configuration de l'application
-├── requirements.txt         # Dépendances Python
-└── README.md                # Documentation
+│   ├── templates/           
+├── app.py                   
+├── config.py                
+├── requirements.txt         
+└── README.md                
 ```
 
 
@@ -105,21 +141,10 @@ sondage-app/
 
 ```python
     class Config:
-    MONGO_URI = 'mongodb://localhost:27017/sondage_app'
+    MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/mydb")
 ```
-## 🧪 Tests
 
-**Les tests unitaires se trouvent dans le dossier tests/. Vous pouvez les exécuter avec pytest :**
-
-```bash
-    pytest
-```
 ## ✨ Auteur
 
 - Nom : **DontRobMe**
 - GitHub : **https://github.com/DontRobMe**
-
-## 📄 Licence
-
-**Ce projet est sous licence MIT. Vous êtes libre de l'utiliser, de le modifier et de le distribuer.**
-
