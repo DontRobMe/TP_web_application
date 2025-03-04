@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Succès</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+<div class="min-h-screen flex flex-col">
+    <header class="bg-gray-800 p-4 flex justify-between items-center text-white theme-header">
+        <a href="{{ url_for('index') }}">
+            <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
+        </a>
+
+        <div class="flex items-center space-x-4">
+            <button onclick="changeLanguage('fr')"
+                    class="px-4 py-2 rounded-lg transition theme-button">
+                Français
+            </button>
+            <button onclick="changeLanguage('en')"
+                    class="px-4 py-2 rounded-lg transition theme-button">
+                English
+            </button>
+
+            <button onclick="toggleTheme()"
+                    class="px-4 py-2 rounded-lg transition theme-button">
+                Toggle Theme
+            </button>
+
+            {% if 'username' in session %}
+            <!-- Si l'utilisateur est connecté -->
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('logout') }}"
+                   class="px-4 py-2 rounded-lg transition theme-button-danger">
+                    Se déconnecter
+                </a>
+            </div>
+            {% else %}
+            <!-- Si l'utilisateur n'est pas connecté -->
+            <a href="{{ url_for('login') }}" class="flex items-center space-x-2 theme-text">
+                <span>Connexion</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+    </header>
+    <div class="flex-grow flex items-center justify-center">
+        <div class="text-center p-8 rounded-xl shadow-lg theme-card">
+            <h1 class="text-3xl font-bold mb-4 theme-text">Réponse soumise avec succès !</h1>
+            <p class="text-lg mb-6 theme-text">Merci d'avoir participé au sondage.</p>
+            <a href="{{ url_for('index') }}"
+               class="px-4 py-2 rounded-lg transition theme-button">Retour à l'accueil</a>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    function applyTheme(theme) {
+        const body = document.body;
+        const header = document.querySelector('.theme-header');
+        const textElements = document.querySelectorAll('.theme-text');
+        const buttons = document.querySelectorAll('.theme-button');
+        const card = document.querySelector('.theme-card');
+        const dangerButtons = document.querySelectorAll('.theme-button-danger');
+
+        if (theme === 'dark') {
+            // Appliquer le mode sombre
+            body.classList.add('bg-gray-900', 'text-white');
+            body.classList.remove('bg-white', 'text-gray-900');
+
+            header.classList.add('bg-gray-800');
+            header.classList.remove('bg-gray-200');
+
+            textElements.forEach(el => {
+                el.classList.add('text-white');
+                el.classList.remove('text-gray-900');
+            });
+
+            buttons.forEach(el => {
+                el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+                el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+            });
+
+            dangerButtons.forEach(el => {
+                el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+                el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+            });
+
+            card.classList.add('bg-gray-800');
+            card.classList.remove('bg-gray-200');
+
+            localStorage.setItem('theme', 'dark');
+        } else {
+            // Appliquer le mode clair
+            body.classList.add('bg-white', 'text-gray-900');
+            body.classList.remove('bg-gray-900', 'text-white');
+
+            header.classList.add('bg-gray-200');
+            header.classList.remove('bg-gray-800');
+
+            textElements.forEach(el => {
+                el.classList.add('text-gray-900');
+                el.classList.remove('text-white');
+            });
+
+            buttons.forEach(el => {
+                el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+            });
+
+            dangerButtons.forEach(el => {
+                el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+            });
+
+            card.classList.add('bg-gray-200');
+            card.classList.remove('bg-gray-800');
+
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+    });
+</script>
+
+
+
+</html>

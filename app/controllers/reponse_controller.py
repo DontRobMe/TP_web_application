@@ -1,8 +1,7 @@
-﻿from flask import request, jsonify
+﻿from flask import request, jsonify, session
 from bson import ObjectId
 from app.models import get_reponse_collection
 
-# Fonction pour soumettre une réponse à un sondage
 def submit_response(sondage_id):
     # Tentative de conversion de l'ID du sondage en ObjectId (format MongoDB)
     try:
@@ -12,17 +11,22 @@ def submit_response(sondage_id):
         return jsonify({"message": "ID de sondage invalide."}), 400
 
     # Récupération des réponses envoyées dans la requête sous forme de liste
-    reponses = request.form.getlist('reponses[]')
+    reponses = {}
+    for question in request.form:
+        # On récupère les réponses pour chaque question
+        reponses[question] = request.form.getlist(question)
 
     # Vérifie si aucune réponse n'a été envoyée
     if not reponses:
         return jsonify({"message": "Aucune réponse envoyée."}), 400
 
+    utilisateur_id = session.get('username')  # Assurez-vous que 'username' est stocké dans la session lors de la connexion
+
     # Préparation des données à enregistrer
     data = {
         "sondage_id": sondage_id,  # Référence au sondage concerné
-        "utilisateur_id": "utilisateur1",  # Identifiant d'utilisateur (peut être remplacé par un système d'authentification)
-        "reponses": reponses  # Liste des réponses fournies
+        "utilisateur_id": utilisateur_id,  # Identifiant d'utilisateur (peut être remplacé par un système d'authentification)
+        "reponses": reponses  # Dictionnaire des réponses pour chaque question
     }
 
     # Tentative d'insertion des réponses dans la base de données

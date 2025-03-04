@@ -3,62 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Répondre au sondage</title>
+    <title>Inscription</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white">
 
-<header class="p-4 flex justify-between items-center theme-header">
-    <a href="{{ url_for('index') }}">
-        <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
-    </a>
-    <div class="flex items-center space-x-4">
-        <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg transition theme-button">
-            Toggle Theme
-        </button>
+<div class="min-h-screen flex flex-col">
 
-        {% if 'username' in session %}
-        <a href="{{ url_for('logout') }}" class="px-4 py-2 rounded-lg transition theme-button-danger">
-            Se déconnecter
+    <header class="p-4 flex justify-between items-center theme-header">
+        <a href="{{ url_for('index') }}">
+            <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
         </a>
-        {% else %}
-        <a href="{{ url_for('login') }}" class="flex items-center space-x-2 theme-text">
-            <span>Connexion</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-        </a>
-        {% endif %}
-    </div>
-</header>
 
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center mb-8 theme-text">{{ sondage.nom }}</h1>
-    <form id="response-form" class="max-w-4xl mx-auto p-6 rounded-xl shadow-lg theme-card">
-        {% for question in sondage.questions %}
-        <div class="mb-4">
-            <label class="block text-lg theme-text">{{ question.intitule }}</label>
-            {% if question.type == 'qcm' %}
-            <div class="mt-2 space-y-2">
-                {% for reponse in question.reponses %}
-                <label class="flex items-center space-x-2">
-                    <input type="checkbox" name="reponses_{{ question.id }}" value="{{ reponse }}"
-                           class="rounded theme-input">
-                    <span class="theme-text">{{ reponse }}</span>
-                </label>
-                {% endfor %}
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg transition theme-button">
+                Toggle Theme
+            </button>
+
+            {% if 'username' in session %}
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('logout') }}" class="px-4 py-2 rounded-lg transition theme-button-danger">
+                    Se déconnecter
+                </a>
             </div>
             {% else %}
-            <input type="text" name="reponses_{{ question.id }}" placeholder="Votre réponse"
-                   class="w-full p-2 rounded theme-input mt-2">
+            <a href="{{ url_for('login') }}" class="px-4 py-2 rounded-lg transition theme-button">
+                <span>Connexion</span>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
             {% endif %}
         </div>
-        {% endfor %}
-        <button type="submit" class="mt-4 px-4 py-2 rounded-lg transition theme-button">
-            Soumettre
-        </button>
-    </form>
+    </header>
+
+    <div class="flex-grow flex items-center justify-center">
+        <div class="p-8 rounded-xl shadow-lg w-96 theme-card">
+            <h1 class="text-2xl font-bold mb-4 theme-text">Créer un compte</h1>
+            <form action="{{ url_for('register') }}" method="POST">
+                <input type="text" name="username" placeholder="Nom d'utilisateur" required
+                       class="w-full p-2 mb-4 rounded theme-input">
+                <input type="email" name="email" placeholder="Email" required
+                       class="w-full p-2 mb-4 rounded theme-input">
+                <input type="password" name="password" placeholder="Mot de passe" required
+                       class="w-full p-2 mb-4 rounded theme-input">
+                <input type="password" name="confirm_password" placeholder="Confirmer le mot de passe" required
+                       class="w-full p-2 mb-4 rounded theme-input">
+                <button type="submit" class="w-full p-2 rounded theme-button">S'inscrire</button>
+            </form>
+
+            <p class="mt-4 text-sm theme-text">Déjà un compte ? <a href="{{ url_for('login') }}" class="theme-link">Se
+                connecter</a></p>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -70,6 +67,7 @@
         const dangerButtons = document.querySelectorAll('.theme-button-danger');
         const card = document.querySelector('.theme-card');
         const inputs = document.querySelectorAll('.theme-input');
+        const links = document.querySelectorAll('.theme-link');
 
         if (theme === 'dark') {
             body.classList.add('bg-gray-900', 'text-white');
@@ -99,6 +97,11 @@
             inputs.forEach(el => {
                 el.classList.add('bg-gray-700', 'text-white');
                 el.classList.remove('bg-gray-300', 'text-gray-900');
+            });
+
+            links.forEach(el => {
+                el.classList.add('text-blue-400');
+                el.classList.remove('text-blue-600');
             });
 
             localStorage.setItem('theme', 'dark');
@@ -132,6 +135,11 @@
                 el.classList.remove('bg-gray-700', 'text-white');
             });
 
+            links.forEach(el => {
+                el.classList.add('text-blue-600');
+                el.classList.remove('text-blue-400');
+            });
+
             localStorage.setItem('theme', 'light');
         }
     }
@@ -145,30 +153,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
-    });
-
-    document.getElementById("response-form").addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const formData = new FormData(this);
-        const sondageId = "{{ sondage._id }}";
-
-        fetch(`/sondages/${sondageId}/reponses`, {
-            method: "POST",
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message === "Réponse enregistrée avec succès !") {
-                    window.location.href = "{{ url_for('success_page') }}";
-                } else {
-                    alert("Erreur : " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Erreur :", error);
-                alert("Une erreur est survenue.");
-            });
     });
 </script>
 

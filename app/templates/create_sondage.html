@@ -1,9 +1,10 @@
 ﻿<!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer un Sondage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         let questionIndex = 0;
 
@@ -12,88 +13,219 @@
 
             const questionsContainer = document.getElementById('questions-container');
             const newQuestion = document.createElement('div');
-            newQuestion.classList.add('question');
+            newQuestion.classList.add('question', 'theme-card', 'p-4', 'rounded-lg', 'mt-4', 'transition-colors', 'duration-300');
             newQuestion.innerHTML = `
-                <div>
-                    <label for="questions-${questionIndex}-intitule">Question :</label>
-                    <input type="text" id="questions-${questionIndex}-intitule" name="questions-${questionIndex}-intitule" required>
+                <div class="mb-2">
+                    <label class="block theme-text" for="questions-${questionIndex}-intitule">Question :</label>
+                    <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" id="questions-${questionIndex}-intitule" name="questions-${questionIndex}-intitule" required>
                 </div>
-                <div>
-                    <label for="questions-${questionIndex}-type">Type de question :</label>
-                    <select id="questions-${questionIndex}-type" name="questions-${questionIndex}-type" onchange="toggleReponses(this)">
+                <div class="mb-2">
+                    <label class="block theme-text" for="questions-${questionIndex}-type">Type de question :</label>
+                    <select class="theme-input w-full p-2 rounded bg-gray-700 text-white" id="questions-${questionIndex}-type" name="questions-${questionIndex}-type" onchange="toggleReponses(this)">
                         <option value="ouverte">ouverte</option>
                         <option value="qcm">QCM</option>
                     </select>
                 </div>
-                <div class="reponses" style="display:none;">
-                    <label>Réponses :</label>
-                    <input type="text" name="questions-${questionIndex}-reponses-0" placeholder="Option 1">
-                    <input type="text" name="questions-${questionIndex}-reponses-1" placeholder="Option 2">
-                    <button type="button" onclick="addReponse(this, ${questionIndex})">Ajouter une option</button>
+                <div class="reponses hidden">
+                    <label class="block theme-text">Réponses :</label>
+                    <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" name="questions-${questionIndex}-reponses-0" placeholder="Option 1">
+                    <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" name="questions-${questionIndex}-reponses-1" placeholder="Option 2">
+                    <button type="button" class="mt-2 px-4 py-2 theme-button bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition" onclick="addReponse(this, ${questionIndex})">Ajouter une option</button>
                 </div>
             `;
             questionsContainer.appendChild(newQuestion);
+            applyTheme(localStorage.getItem('theme') || 'dark');
         }
 
         function addReponse(button, questionIndex) {
             const reponsesDiv = button.parentElement;
             const inputCount = reponsesDiv.querySelectorAll('input').length;
             const newReponse = document.createElement('input');
+            newReponse.classList.add("theme-input", "w-full", "p-2", "rounded", "mt-2", "transition-colors", "duration-300");
             newReponse.type = 'text';
             newReponse.name = `questions-${questionIndex}-reponses-${inputCount}`;
             newReponse.placeholder = `Option ${inputCount + 1}`;
-            reponsesDiv.appendChild(newReponse);
+            reponsesDiv.insertBefore(newReponse, button);
+            applyTheme(localStorage.getItem('theme') || 'dark');
         }
 
         function toggleReponses(select) {
             const reponsesDiv = select.parentElement.nextElementSibling;
             if (select.value === 'qcm') {
-                reponsesDiv.style.display = 'block';
+                reponsesDiv.classList.remove('hidden');
             } else {
-                reponsesDiv.style.display = 'none';
+                reponsesDiv.classList.add('hidden');
             }
         }
+
+        function applyTheme(theme) {
+            const body = document.body;
+            const header = document.querySelector('.theme-header');
+            const textElements = document.querySelectorAll('.theme-text');
+            const buttons = document.querySelectorAll('.theme-button');
+            const dangerButtons = document.querySelectorAll('.theme-button-danger');
+            const card = document.querySelector('.theme-card');
+            const inputs = document.querySelectorAll('.theme-input');
+            const listItems = document.querySelectorAll('.theme-card-item');
+
+            if (theme === 'dark') {
+                body.classList.add('bg-gray-900', 'text-white');
+                body.classList.remove('bg-white', 'text-gray-900');
+
+                if (header) {
+                    header.classList.add('bg-gray-800');
+                    header.classList.remove('bg-gray-200');
+                }
+
+                textElements.forEach(el => {
+                    el.classList.add('text-white');
+                    el.classList.remove('text-gray-900');
+                });
+
+                buttons.forEach(el => {
+                    el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+                    el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                });
+
+                dangerButtons.forEach(el => {
+                    el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+                    el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                });
+
+                if (card) {
+                    card.classList.add('bg-gray-800');
+                    card.classList.remove('bg-gray-200');
+                }
+
+                inputs.forEach(el => {
+                    el.classList.add('bg-gray-700', 'text-white');
+                    el.classList.remove('bg-gray-300', 'text-gray-900');
+                });
+
+                listItems.forEach(el => {
+                    el.classList.add('bg-gray-700');
+                    el.classList.remove('bg-gray-300');
+                });
+
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('bg-white', 'text-gray-900');
+                body.classList.remove('bg-gray-900', 'text-white');
+
+                if (header) {
+                    header.classList.add('bg-gray-200');
+                    header.classList.remove('bg-gray-800');
+                }
+
+                textElements.forEach(el => {
+                    el.classList.add('text-gray-900');
+                    el.classList.remove('text-white');
+                });
+
+                buttons.forEach(el => {
+                    el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                    el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+                });
+
+                dangerButtons.forEach(el => {
+                    el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                    el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+                });
+
+                if (card) {
+                    card.classList.add('bg-gray-200');
+                    card.classList.remove('bg-gray-800');
+                }
+
+                inputs.forEach(el => {
+                    el.classList.add('bg-gray-300', 'text-gray-900');
+                    el.classList.remove('bg-gray-700', 'text-white');
+                });
+
+                listItems.forEach(el => {
+                    el.classList.add('bg-gray-300');
+                    el.classList.remove('bg-gray-700');
+                });
+
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+        });
     </script>
 </head>
-<body>
-<h1>Créer un nouveau sondage</h1>
+<body class="bg-gray-900 text-white">
+<!-- HEADER -->
+<header class="p-4 flex justify-between items-center theme-header">
+    <a href="{{ url_for('index') }}">
+        <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
+    </a>
 
-<form action="/create_sondage" method="POST">
-    <div>
-        <label for="nom">Nom du sondage :</label>
-        <input type="text" id="nom" name="nom" required>
-    </div>
-    <div>
-        <label for="createur">Créateur :</label>
-        <input type="text" id="createur" name="createur" required>
-    </div>
+    <div class="flex items-center space-x-4">
+        <button onclick="changeLanguage('fr')" class="px-4 py-2 rounded-lg transition theme-button">
+            Français
+        </button>
+        <button onclick="changeLanguage('en')" class="px-4 py-2 rounded-lg transition theme-button">
+            English
+        </button>
+        <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg transition theme-button">
+            Toggle Theme
+        </button>
 
-    <div id="questions-container">
-        <div class="question">
-            <div>
-                <label for="questions-0-intitule">Question :</label>
-                <input type="text" id="questions-0-intitule" name="questions-0-intitule" required>
-            </div>
-            <div>
-                <label for="questions-0-type">Type de question :</label>
-                <select id="questions-0-type" name="questions-0-type" onchange="toggleReponses(this)">
-                    <option value="ouverte">ouverte</option>
-                    <option value="qcm">QCM</option>
-                </select>
-            </div>
-            <div class="reponses" style="display:none;">
-                <label>Réponses :</label>
-                <button type="button" onclick="addReponse(this, 0)">Ajouter une option</button>
-                <input type="text" name="questions-0-reponses-0" placeholder="Option 1">
-                <input type="text" name="questions-0-reponses-1" placeholder="Option 2">
-            </div>
+        <div>
+            {% if 'username' in session %}
+            <a href="{{ url_for('logout') }}" class="px-4 py-2 rounded-lg transition theme-button-danger">
+                Se déconnecter
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="flex items-center space-x-2 theme-text">
+                <span>Connexion</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+            {% endif %}
         </div>
     </div>
+</header>
 
-    <button type="button" onclick="addQuestion()">Ajouter une question</button>
-    <button type="submit">Créer</button>
-</form>
+<!-- CONTENU PRINCIPAL -->
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-8 theme-text">Créer un nouveau sondage</h1>
 
-<a href="{{ url_for('index') }}">Retour à la liste des sondages</a>
+    <form action="/create_sondage" method="POST"
+          class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-xl shadow-lg theme-card">
+        <div class="mb-4">
+            <label class="block theme-text" for="nom">Nom du sondage :</label>
+            <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" id="nom" name="nom"
+                   required>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <button type="button" onclick="addQuestion()"
+                class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition theme-button">
+            Ajouter une question
+        </button>
+        <button type="submit"
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition theme-button">
+            Créer
+        </button>
+    </form>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="text-blue-400 hover:underline">Retour à la liste des sondages</a>
+    </div>
+</div>
 </body>
 </html>

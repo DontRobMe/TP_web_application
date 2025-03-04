@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Gestion du thème (dark / light)
+        function applyTheme(theme) {
+            const body = document.body;
+            const header = document.querySelector('.theme-header');
+            const textElements = document.querySelectorAll('.theme-text');
+            const buttons = document.querySelectorAll('.theme-button');
+            const dangerButtons = document.querySelectorAll('.theme-button-danger');
+            const inputs = document.querySelectorAll('.theme-input');
+            const card = document.querySelector('.theme-card');
+
+            if (theme === 'dark') {
+                body.classList.add('bg-gray-900', 'text-white');
+                body.classList.remove('bg-white', 'text-gray-900');
+
+                if (header) {
+                    header.classList.add('bg-gray-800');
+                    header.classList.remove('bg-gray-200');
+                }
+
+                textElements.forEach(el => {
+                    el.classList.add('text-white');
+                    el.classList.remove('text-gray-900');
+                });
+
+                buttons.forEach(el => {
+                    el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+                    el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                });
+
+                dangerButtons.forEach(el => {
+                    el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+                    el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                });
+
+                if (card) {
+                    card.classList.add('bg-gray-800');
+                    card.classList.remove('bg-gray-200');
+                }
+
+                inputs.forEach(el => {
+                    el.classList.add('bg-gray-700', 'text-white');
+                    el.classList.remove('bg-gray-300', 'text-gray-900');
+                });
+
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('bg-white', 'text-gray-900');
+                body.classList.remove('bg-gray-900', 'text-white');
+
+                if (header) {
+                    header.classList.add('bg-gray-200');
+                    header.classList.remove('bg-gray-800');
+                }
+
+                textElements.forEach(el => {
+                    el.classList.add('text-gray-900');
+                    el.classList.remove('text-white');
+                });
+
+                buttons.forEach(el => {
+                    el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                    el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+
+                });
+
+                dangerButtons.forEach(el => {
+                    el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                    el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+                });
+
+                if (card) {
+                    card.classList.add('bg-gray-200');
+                    card.classList.remove('bg-gray-800');
+                }
+
+                inputs.forEach(el => {
+                    el.classList.add('bg-gray-300', 'text-gray-900');
+                    el.classList.remove('bg-gray-700', 'text-white');
+                });
+
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+        });
+    </script>
+</head>
+<body class="bg-gray-900 text-white">
+<div class="min-h-screen flex flex-col">
+    <!-- HEADER -->
+    <header class="theme-header bg-gray-800 p-4 flex justify-between items-center">
+        <a href="{{ url_for('index') }}">
+            <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
+        </a>
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleTheme()" class="theme-button px-4 py-2 rounded-lg transition">
+                Toggle Theme
+            </button>
+            <div>
+                {% if 'username' in session %}
+                <a href="{{ url_for('logout') }}" class="theme-button-danger px-4 py-2 rounded-lg transition">
+                    Se déconnecter
+                </a>
+                {% else %}
+                <a href="{{ url_for('register') }}" class="px-4 py-2 rounded-lg transition theme-button">
+                    <span>S'inscrire</span>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="flex-grow flex items-center justify-center">
+        <div class="theme-card bg-gray-800 p-8 rounded-xl shadow-lg w-96">
+            <h1 class="text-2xl font-bold mb-4 theme-text">Se connecter</h1>
+            <form action="{{ url_for('login') }}" method="POST">
+                <input type="text" name="username" placeholder="Nom d'utilisateur" required
+                       class="theme-input w-full p-2 mb-4 rounded bg-gray-700 text-white">
+                <input type="password" name="password" placeholder="Mot de passe" required
+                       class="theme-input w-full p-2 mb-4 rounded bg-gray-700 text-white">
+                <button type="submit"
+                        class="w-full theme-button bg-green-500 p-2 rounded hover:bg-green-600 transition">
+                    Connexion
+                </button>
+            </form>
+            <p class="mt-4 text-sm theme-text">
+                Pas encore de compte ? <a href="{{ url_for('register') }}" class="text-blue-400 hover:underline">S'inscrire</a>
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

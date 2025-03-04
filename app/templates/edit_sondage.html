@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un Sondage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        let questionIndex = {{ sondage.questions | length }};
+
+        function addQuestion(intitule = '', type = 'ouverte', reponses = []) {
+            const questionsContainer = document.getElementById('questions-container');
+            const newQuestion = document.createElement('div');
+            newQuestion.classList.add('question', 'theme-card', 'p-4', 'rounded-lg', 'mt-4', 'transition-colors', 'duration-300');
+
+            newQuestion.innerHTML = `
+                <div class="mb-2">
+                    <label class="block theme-text">Question :</label>
+                    <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" name="questions-${questionIndex}-intitule" value="${intitule}" required>
+                </div>
+                <div class="mb-2">
+                    <label class="block theme-text">Type de question :</label>
+                    <select class="theme-input w-full p-2 rounded bg-gray-700 text-white" name="questions-${questionIndex}-type" onchange="toggleReponses(this)">
+                        <option value="ouverte" ${type === 'ouverte' ? 'selected' : ''}>Ouverte</option>
+                        <option value="qcm" ${type === 'qcm' ? 'selected' : ''}>QCM</option>
+                    </select>
+                </div>
+                <div class="reponses ${type === 'qcm' ? '' : 'hidden'}">
+                    <label class="block theme-text">Réponses :</label>
+                    <div id="reponses-container-${questionIndex}">
+                        ${reponses.map((rep, index) => `
+                            <input class="theme-input w-full p-2 rounded bg-gray-700 text-white mt-2" type="text" name="questions-${questionIndex}-reponses-${index}" value="${rep}">
+                        `).join('')}
+                    </div>
+                    <button type="button" class="mt-2 px-4 py-2 theme-button bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition" onclick="addReponse(${questionIndex})">Ajouter une option</button>
+                </div>
+            `;
+            questionsContainer.appendChild(newQuestion);
+        }
+
+        function addReponse(questionIndex) {
+            const reponsesContainer = document.getElementById(`reponses-container-${questionIndex}`);
+            const inputCount = reponsesContainer.querySelectorAll('input').length;
+            const newReponse = document.createElement('input');
+            newReponse.classList.add("theme-input", "w-full", "p-2", "rounded", "mt-2", "bg-gray-700", "text-white");
+            newReponse.type = 'text';
+            newReponse.name = `questions-${questionIndex}-reponses-${inputCount}`;
+            newReponse.placeholder = `Option ${inputCount + 1}`;
+            reponsesContainer.appendChild(newReponse);
+        }
+
+        function toggleReponses(select) {
+            const reponsesDiv = select.parentElement.nextElementSibling;
+            if (select.value === 'qcm') {
+                reponsesDiv.classList.remove('hidden');
+            } else {
+                reponsesDiv.classList.add('hidden');
+            }
+        }
+
+        function applyTheme(theme) {
+    const body = document.body;
+    const header = document.querySelector('.theme-header');
+    const textElements = document.querySelectorAll('.theme-text');
+    const buttons = document.querySelectorAll('.theme-button');
+    const dangerButtons = document.querySelectorAll('.theme-button-danger');
+    const card = document.querySelector('.theme-card');
+    const inputs = document.querySelectorAll('.theme-input');
+    const listItems = document.querySelectorAll('.theme-card-item');
+    const titles = document.querySelectorAll('h1, h2, h3, h4, h5, h6'); // Pour les titres
+    const labels = document.querySelectorAll('label'); // Pour les labels
+
+    if (theme === 'dark') {
+        // Fond et texte du body
+        body.classList.add('bg-gray-900', 'text-white');
+        body.classList.remove('bg-white', 'text-gray-900');
+
+        // En-tête
+        if (header) {
+            header.classList.add('bg-gray-800');
+            header.classList.remove('bg-gray-200');
+        }
+
+        // Couleur du texte général
+        textElements.forEach(el => {
+            el.classList.add('text-white');
+            el.classList.remove('text-gray-900');
+        });
+
+        // Titres
+        titles.forEach(el => {
+            el.classList.add('text-white');
+            el.classList.remove('text-gray-900');
+        });
+
+        // Labels
+        labels.forEach(el => {
+            el.classList.add('text-white');
+            el.classList.remove('text-gray-900');
+        });
+
+        // Boutons
+        buttons.forEach(el => {
+            el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+            el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+        });
+
+        dangerButtons.forEach(el => {
+            el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+            el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+        });
+
+        // Cartes
+        if (card) {
+            card.classList.add('bg-gray-800');
+            card.classList.remove('bg-gray-200');
+        }
+
+        // Inputs
+        inputs.forEach(el => {
+            el.classList.add('bg-gray-700', 'text-white');
+            el.classList.remove('bg-gray-300', 'text-gray-900');
+        });
+
+        // Listes
+        listItems.forEach(el => {
+            el.classList.add('bg-gray-700');
+            el.classList.remove('bg-gray-300');
+        });
+
+        localStorage.setItem('theme', 'dark');
+    } else {
+        // Fond et texte du body
+        body.classList.add('bg-white', 'text-gray-900');
+        body.classList.remove('bg-gray-900', 'text-white');
+
+        // En-tête
+        if (header) {
+            header.classList.add('bg-gray-200');
+            header.classList.remove('bg-gray-800');
+        }
+
+        // Couleur du texte général
+        textElements.forEach(el => {
+            el.classList.add('text-gray-900');
+            el.classList.remove('text-white');
+        });
+
+        // Titres
+        titles.forEach(el => {
+            el.classList.add('text-gray-900');
+            el.classList.remove('text-white');
+        });
+
+        // Labels
+        labels.forEach(el => {
+            el.classList.add('text-gray-900');
+            el.classList.remove('text-white');
+        });
+
+        // Boutons
+        buttons.forEach(el => {
+            el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+            el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+        });
+
+        dangerButtons.forEach(el => {
+            el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+            el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+        });
+
+        // Cartes
+        if (card) {
+            card.classList.add('bg-gray-200');
+            card.classList.remove('bg-gray-800');
+        }
+
+        // Inputs
+        inputs.forEach(el => {
+            el.classList.add('bg-gray-300', 'text-gray-900');
+            el.classList.remove('bg-gray-700', 'text-white');
+        });
+
+        // Listes
+        listItems.forEach(el => {
+            el.classList.add('bg-gray-300');
+            el.classList.remove('bg-gray-700');
+        });
+
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let questions = {{ sondage.questions | tojson }};
+            questions.forEach(q => addQuestion(q.intitule, q.type, q.reponses || []));
+            applyTheme(localStorage.getItem('theme') || 'dark');
+        });
+    </script>
+</head>
+<body class="bg-gray-900 text-white">
+<header class="theme-header p-4 flex items-center justify-between bg-gray-800 text-white rounded-lg mb-8">
+    <a href="{{ url_for('index') }}" class="flex items-center">
+        <h1 class="text-2xl font-bold">Modifier un Sondage</h1>
+    </a>
+    <button onclick="toggleTheme()" class="theme-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+        Changer de thème
+    </button>
+</header>
+
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-8 text-white">Modifier le sondage</h1>
+
+    <form action="{{ url_for('update_sondage', sondage_id=sondage._id) }}" method="POST" class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-xl shadow-lg theme-card">
+        <div class="mb-4">
+            <label class="block text-white">Nom du sondage :</label>
+            <input class="theme-input w-full p-2 rounded bg-gray-700 text-white" type="text" name="nom" value="{{ sondage.nom }}" required>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <button type="button" onclick="addQuestion()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition theme-button">
+            Ajouter une question
+        </button>
+
+        <button type="submit" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition theme-button">
+            Sauvegarder
+        </button>
+    </form>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="text-blue-400 hover:underline">Retour à la liste des sondages</a>
+    </div>
+</div>
+</body>
+</html>

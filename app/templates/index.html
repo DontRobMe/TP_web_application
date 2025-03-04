@@ -1,27 +1,253 @@
 ﻿<!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sondages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Sondages disponibles</h1>
+<body class="bg-gray-900 text-white">
 
-    <div>
+<!-- HEADER -->
+<header class="p-4 flex justify-between items-center theme-header">
+    <a href="{{ url_for('index') }}">
+        <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
+    </a>
+
+    <div class="flex items-center space-x-4">
+        <button onclick="toggleTheme()"
+                class="px-4 py-2 rounded-lg transition theme-button">
+            Toggle Theme
+        </button>
+
+        <div>
+            {% if 'username' in session %}
+            <a href="{{ url_for('logout') }}"
+               class="px-4 py-2 rounded-lg transition theme-button-danger">
+                Se déconnecter
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="flex items-center space-x-2 theme-text theme-button">
+                <span>Connexion</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-8 theme-text">Sondages disponibles</h1>
+    <form action="{{ url_for('index') }}" method="GET" class="mb-6">
+        <label for="filter" class="mr-2">Filtrer les sondages :</label>
+
+        <select name="filter" id="filter" class="p-2 border rounded text-black">
+            <option value="all" {% if filter=='all' %}selected{% endif %}>Tous les sondages</option>
+            {% for user in users %}
+            <option value="{{ user }}" {% if user== selected_user %}selected{% endif %}>{{ user }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="ml-2 px-4 py-2 theme-button rounded">Filtrer</button>
+    </form>
+
+
+    {% if 'username' in session %}
+    <div class="mb-6 text-center">
+        <a href="{{ url_for('create_sondage') }}"
+           class="px-6 py-3 rounded-lg transition theme-button">
+            Créer un sondage
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="max-w-4xl mx-auto p-6 rounded-xl shadow-lg theme-card">
         {% if sondages %}
-            <ul>
-                {% for sondage in sondages %}
-                    <li>
-                        <h2>{{ sondage.nom }}</h2>
-                        <p>Créé par : {{ sondage.createur }}</p>
-                        <a href="{{ url_for('show_sondage', sondage_id=sondage.id_str) }}">Voir les détails</a>
-                    </li>
-                {% endfor %}
-            </ul>
+        <ul class="space-y-4">
+            {% for sondage in sondages %}
+            <li class="relative p-4 rounded-lg hover:bg-gray-600 transition theme-card-item">
+                <h2 class="text-xl font-semibold theme-text">{{ sondage.nom }}</h2>
+                <p class="theme-text">Créé par : {{ sondage.createur }}</p>
+
+                <a href="{{ url_for('show_sondage', sondage_id=sondage['_id'] | string) }}"
+                   class="inline-block mt-2 px-4 py-2 rounded-lg transition theme-button">
+                    Voir les détails
+                </a>
+                {% if sondage.createur == session['username'] %}
+                <a href="{{ url_for('view_reponses', sondage_id=sondage['_id'] | string) }}"
+                   class="inline-block mt-2 px-4 py-2 rounded-lg theme-button transition">
+                    Voir les réponses
+                </a>
+                {% endif %}
+                {% if 'username' in session and sondage.createur == session['username'] %}
+                <form class="delete-form" data-sondage-id="{{ sondage['_id'] | string }}">
+                    <button type="submit"
+                            class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-600 transition theme-button-danger">
+                        <span class="text-lg font-bold">−</span>
+                    </button>
+                </form>
+
+                <a href="{{ url_for('edit_sondage', sondage_id=sondage['_id'] | string) }}"
+                   class="absolute top-10 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-600 transition theme-button-danger">
+                    <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+                         width="10.000000pt" height="10.000000pt" viewBox="0 0 26.000000 26.000000"
+                         preserveAspectRatio="xMidYMid meet">
+
+                        <g transform="translate(0.000000,26.000000) scale(0.100000,-0.100000)"
+                           fill="#000000" stroke="none">
+                            <path d="M12 248 c-16 -16 -16 -210 0 -226 14 -14 104 -16 113 -3 3 6 -17 11 -47 13 l-53 3 0 100 0 100 42 3 c42 3 43 2 43 -27 0 -28 3 -31 30 -31 29 0 30 -2 30 -46 0 -27 4 -43 10 -39 5 3 10 27 10 52 0 38 -5 50 -34 79 -29 29 -41 34 -83 34 -27 0 -54 -5 -61 -12z"/>
+                            <path d="M225 110 c-10 -17 12 -37 25 -24 8 8 6 15 -4 23 -10 9 -16 9 -21 1z"/>
+                            <path d="M175 63 c-11 -15 -23 -36 -27 -46 -7 -15 -4 -17 15 -12 12 4 33 18 46 30 21 20 22 26 11 39 -17 21 -22 20 -45 -11z m0 -33 c3 -5 1 -10 -4 -10 -6 0 -11 5 -11 10 0 6 2 10 4 10 3 0 8 -4 11 -10z"/>
+                        </g>
+                    </svg>
+
+                </a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-            <p>Aucun sondage disponible.</p>
+        <p class=" text-center theme-text
+                        ">Aucun sondage disponible.</p>
         {% endif %}
     </div>
+</div>
+
+<!-- Script de gestion des formulaires de suppression -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-form").forEach(form => {
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // Empêche le rechargement de la page
+
+                if (!confirm("Voulez-vous vraiment supprimer ce sondage ?")) return;
+
+                const sondageId = form.dataset.sondageId; // Récupère l'ID du sondage
+                fetch(`/delete_sondage/${encodeURIComponent(sondageId)}`, {
+                    method: "POST", // Utilisation de POST pour éviter certains blocages CORS
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({id: sondageId})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            form.closest("li").remove();
+                            location.reload();
+                        } else {
+                            alert("Erreur : " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erreur :", error);
+                        alert("Une erreur est survenue.");
+                    });
+            });
+        });
+    });
+</script>
+
+<!-- Script de thématisation -->
+<script>
+    function applyTheme(theme) {
+        const body = document.body;
+        const header = document.querySelector('.theme-header');
+        const textElements = document.querySelectorAll('.theme-text');
+        const buttons = document.querySelectorAll('.theme-button');
+        const dangerButtons = document.querySelectorAll('.theme-button-danger');
+        const card = document.querySelector('.theme-card');
+        const inputs = document.querySelectorAll('.theme-input');
+        const listItems = document.querySelectorAll('.theme-card-item');
+
+        if (theme === 'dark') {
+            body.classList.add('bg-gray-900', 'text-white');
+            body.classList.remove('bg-white', 'text-gray-900');
+
+            header.classList.add('bg-gray-800');
+            header.classList.remove('bg-gray-200');
+
+            textElements.forEach(el => {
+                el.classList.add('text-white');
+                el.classList.remove('text-gray-900');
+            });
+
+            buttons.forEach(el => {
+                el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+                el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+            });
+
+            dangerButtons.forEach(el => {
+                el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+                el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+            });
+
+            card.classList.add('bg-gray-800');
+            card.classList.remove('bg-gray-200');
+
+            inputs.forEach(el => {
+                el.classList.add('bg-gray-700', 'text-white');
+                el.classList.remove('bg-gray-300', 'text-gray-900');
+            });
+
+            listItems.forEach(el => {
+                el.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                el.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+            });
+
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.add('bg-white', 'text-gray-900');
+            body.classList.remove('bg-gray-900', 'text-white');
+
+            header.classList.add('bg-gray-200');
+            header.classList.remove('bg-gray-800');
+
+            textElements.forEach(el => {
+                el.classList.add('text-gray-900');
+                el.classList.remove('text-white');
+            });
+
+            buttons.forEach(el => {
+                el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+                el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+            });
+
+            dangerButtons.forEach(el => {
+                el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+                el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+            });
+
+            card.classList.add('bg-gray-200');
+            card.classList.remove('bg-gray-800');
+
+            inputs.forEach(el => {
+                el.classList.add('bg-gray-300', 'text-gray-900');
+                el.classList.remove('bg-gray-700', 'text-white');
+            });
+
+            listItems.forEach(el => {
+                el.classList.add('bg-gray-300', 'hover:bg-gray-400');
+                el.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+            });
+
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+    });
+</script>
+
 </body>
 </html>

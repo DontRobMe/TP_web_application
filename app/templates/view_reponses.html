@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="{{ 'fr' if session.get('lang', 'fr') == 'fr' else 'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réponses du sondage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+<div class="min-h-screen flex flex-col">
+  <!-- HEADER -->
+  <header class="p-4 flex justify-between items-center theme-header">
+    <a href="{{ url_for('index') }}">
+      <h1 class="text-xl font-bold theme-text">Sondages Modernes</h1>
+    </a>
+    <div class="flex items-center space-x-4">
+      <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg transition theme-button">
+        Toggle Theme
+      </button>
+      {% if 'username' in session %}
+      <div class="flex items-center space-x-4">
+        <a href="{{ url_for('logout') }}" class="px-4 py-2 rounded-lg transition theme-button-danger">
+          Se déconnecter
+        </a>
+      </div>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="px-4 py-2 rounded-lg transition theme-button">
+        <span>Connexion</span>
+      </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- TITRE -->
+  <h1 class="text-3xl font-bold text-center mb-8 theme-text">Réponses du sondage : {{ sondage.nom }}</h1>
+
+<div class="w-full overflow-x-auto px-4">
+  <table class="min-w-full rounded-lg overflow-hidden theme-card">
+    <thead class="theme-thead">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider theme-text">
+          Répondu par
+        </th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider theme-text">
+          Réponses
+        </th>
+      </tr>
+    </thead>
+    <tbody class="theme-tbody divide-y divide-gray-700">
+      {% for reponse in reponses %}
+      <tr class="hover:bg-gray-600 transition theme-card-item">
+        <td class="px-6 py-4 whitespace-nowrap text-sm theme-text">
+          {{ reponse.utilisateur_id }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm theme-text">
+          {% for r in reponse.reponses.reponses_ %}
+          <div class="mb-1">{{ r }}</div>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+  <!-- ZONE DU GRAPHIQUE -->
+  <div class="max-w-2xl mx-auto mt-8">
+    <canvas id="responsesChart"></canvas>
+  </div>
+</div>
+
+<!-- Script Chart.js -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('responsesChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: {{ labels | tojson }},
+        datasets: [{
+          label: 'Nombre de votes',
+          data: {{ data_values | tojson }},
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)'
+          ],
+          borderColor: 'rgba(255, 255, 255, 0.8)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<!-- Script de gestion des thèmes -->
+<script>
+  function applyTheme(theme) {
+    const body = document.body;
+    const header = document.querySelector('.theme-header');
+    const textElements = document.querySelectorAll('.theme-text');
+    const buttons = document.querySelectorAll('.theme-button');
+    const dangerButtons = document.querySelectorAll('.theme-button-danger');
+    const card = document.querySelector('.theme-card');
+    const inputs = document.querySelectorAll('.theme-input');
+    const links = document.querySelectorAll('.theme-link');
+
+    if (theme === 'dark') {
+      body.classList.add('bg-gray-900', 'text-white');
+      body.classList.remove('bg-white', 'text-gray-900');
+
+      header.classList.add('bg-gray-800');
+      header.classList.remove('bg-gray-200');
+
+      textElements.forEach(el => {
+        el.classList.add('text-white');
+        el.classList.remove('text-gray-900');
+      });
+
+      buttons.forEach(el => {
+        el.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600');
+        el.classList.remove('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+      });
+
+      dangerButtons.forEach(el => {
+        el.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600');
+        el.classList.remove('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+      });
+
+      card.classList.add('bg-gray-800');
+      card.classList.remove('bg-gray-200');
+
+      inputs.forEach(el => {
+        el.classList.add('bg-gray-700', 'text-white');
+        el.classList.remove('bg-gray-300', 'text-gray-900');
+      });
+
+      links.forEach(el => {
+        el.classList.add('text-blue-400');
+        el.classList.remove('text-blue-600');
+      });
+
+      localStorage.setItem('theme', 'dark');
+    } else {
+      body.classList.add('bg-white', 'text-gray-900');
+      body.classList.remove('bg-gray-900', 'text-white');
+
+      header.classList.add('bg-gray-200');
+      header.classList.remove('bg-gray-800');
+
+      textElements.forEach(el => {
+        el.classList.add('text-gray-900');
+        el.classList.remove('text-white');
+      });
+
+      buttons.forEach(el => {
+        el.classList.add('bg-[#e6d3a0]', 'text-gray-900', 'hover:bg-[#DFC56B]');
+        el.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600');
+      });
+
+      dangerButtons.forEach(el => {
+        el.classList.add('bg-red-300', 'text-gray-900', 'hover:bg-red-400');
+        el.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600');
+      });
+
+      card.classList.add('bg-gray-200');
+      card.classList.remove('bg-gray-800');
+
+      inputs.forEach(el => {
+        el.classList.add('bg-gray-300', 'text-gray-900');
+        el.classList.remove('bg-gray-700', 'text-white');
+      });
+
+      links.forEach(el => {
+        el.classList.add('text-blue-600');
+        el.classList.remove('text-blue-400');
+      });
+
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+  });
+</script>
+
+</body>
+</html>

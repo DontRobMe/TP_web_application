@@ -13,3 +13,6 @@ def get_sondage_collection():
 
 def get_reponse_collection():
     return mongo.db.reponses
+
+def get_user_collection():
+    return mongo.db.users
